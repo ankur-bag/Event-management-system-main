@@ -6,6 +6,7 @@ import {
   loginValidation,
   validate,
 } from '../middleware/validationMiddleware.js';
+import { authRateLimiter } from '../middleware/rateLimiters.js';
 
 const router = Router();
 

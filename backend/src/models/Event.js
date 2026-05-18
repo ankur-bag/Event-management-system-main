@@ -11,7 +11,12 @@ const eventSchema = new mongoose.Schema(
     registeredCount: { type: Number, default: 0 },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     posterUrl: { type: String },
-    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    gallery: {
+      type: [String],
+      default: [],
+      validate: [arr => arr.length <= 6, 'Max 6 gallery images']
+    },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'approved' },
     rejectionReason: { type: String, default: '' },
     tags: [{ type: String }],
     averageRating: { type: Number, default: 0 },

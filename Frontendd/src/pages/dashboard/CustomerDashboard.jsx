@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, MapPin, Ticket, X, Download } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../../config';
 import { generateCertificate } from '../../utils/generateCertificate';
 import html2canvas from 'html2canvas';
@@ -11,6 +11,7 @@ import jsPDF from 'jspdf';
 
 export default function CustomerDashboard() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [registrations, setRegistrations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('Upcoming Tickets');
@@ -334,13 +335,20 @@ const pastEvents = [
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex justify-end pt-4 md:pt-0">
+                                                        <div className="flex justify-end items-center gap-2 pt-4 md:pt-0">
+                                                            <Button
+                                                                variant="ghost"
+                                                                className="text-xs h-8 text-muted-foreground hover:text-foreground mr-2"
+                                                                onClick={() => navigate(`/events/${reg.event?._id}`)}
+                                                            >
+                                                                Event Page
+                                                            </Button>
                                                             <Button
                                                                 variant="outline"
                                                                 className="text-xs h-8 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
                                                                 onClick={() => setSelectedTicket(reg)}
                                                             >
-                                                                View Details
+                                                                View Ticket
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -524,7 +532,14 @@ const pastEvents = [
                                                                 </div>
                                                             </div>
 
-                                                            <div className="flex justify-end pt-4 md:pt-0">
+                                                            <div className="flex justify-end items-center gap-2 pt-4 md:pt-0">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className="text-xs h-8 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
+                                                                    onClick={() => navigate(`/events/${evt._id}`)}
+                                                                >
+                                                                    View Details
+                                                                </Button>
                                                                 {isRegistered ? (
                                                                     <Button disabled variant="success" className="text-xs h-8 bg-green-600 text-white opacity-75">
                                                                         Registered

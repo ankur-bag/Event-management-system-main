@@ -36,7 +36,7 @@ async function run() {
       capacity: 100,
       organizer: organizer._id,
       status: 'approved',
-      posterUrl: '/uploads/poster-1.jpg',
+      posterUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1000',
       tags: ['mern', 'javascript'],
     },
     {
@@ -48,7 +48,7 @@ async function run() {
       capacity: 60,
       organizer: organizer._id,
       status: 'approved',
-      posterUrl: '/uploads/poster-2.jpg',
+      posterUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1000',
       tags: ['outdoor'],
     },
     {
@@ -60,7 +60,7 @@ async function run() {
       capacity: 30,
       organizer: organizer._id,
       status: 'pending',
-      posterUrl: '/uploads/poster-3.jpg',
+      posterUrl: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=1000',
       tags: ['creative'],
     },
     {
@@ -72,7 +72,7 @@ async function run() {
       capacity: 200,
       organizer: organizer._id,
       status: 'approved',
-      posterUrl: '/uploads/poster-5.jpg',
+      posterUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=1000',
       tags: ['fest'],
     },
     {
@@ -84,7 +84,7 @@ async function run() {
       capacity: 80,
       organizer: organizer._id,
       status: 'approved',
-      posterUrl: '/uploads/poster-6.jpg',
+      posterUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000',
       tags: ['hackathon'],
     },
     {
@@ -96,7 +96,7 @@ async function run() {
       capacity: 50,
       organizer: organizer._id,
       status: 'approved',
-      posterUrl: '/uploads/poster-7.jpg',
+      posterUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1000',
       tags: ['health'],
     },
   ]);

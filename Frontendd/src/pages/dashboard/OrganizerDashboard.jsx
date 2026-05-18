@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, MapPin, Users, Plus, Upload, Tag, Search, TrendingUp, IndianRupee, Clock, CheckCircle, XCircle, AlertCircle, Download, Trash2 } from 'lucide-react';
+import { Calendar, MapPin, Users, Plus, Upload, Tag, Search, TrendingUp, IndianRupee, Clock, CheckCircle, XCircle, AlertCircle, Download, Trash2, Pencil, Eye } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -243,7 +243,13 @@ export default function OrganizerDashboard() {
                         {['My Events', 'Past Events', 'Create New Event', 'Analytics'].map((tab) => (
                             <button
                                 key={tab}
-                                onClick={() => setActiveTab(tab)}
+                                onClick={() => {
+                                    if (tab === 'Create New Event') {
+                                        navigate('/organizer/create-event');
+                                    } else {
+                                        setActiveTab(tab);
+                                    }
+                                }}
                                 className={`pb-4 text-sm font-medium transition-colors relative whitespace-nowrap ${activeTab === tab
                                     ? 'text-orange-500' // Keeping orange accent for Organizer distinction
                                     : 'text-muted-foreground hover:text-foreground'
@@ -835,6 +841,50 @@ export default function OrganizerDashboard() {
                                             onClick={() => handleDownloadCSV(selectedEvent._id)}
                                         >
                                             Download
+                                        </Button>
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 bg-secondary/20 rounded-lg border border-border/50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-green-500/10 rounded-full text-green-500">
+                                                <Eye className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <div className="font-medium text-sm">View Event Page</div>
+                                                <div className="text-xs text-muted-foreground">Go to public event details page</div>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => {
+                                                setSelectedEvent(null);
+                                                navigate(`/events/${selectedEvent._id}`);
+                                            }}
+                                        >
+                                            View Page
+                                        </Button>
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 bg-secondary/20 rounded-lg border border-border/50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-orange-500/10 rounded-full text-orange-500">
+                                                <Pencil className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <div className="font-medium text-sm">Edit Event Details</div>
+                                                <div className="text-xs text-muted-foreground">Modify details & add gallery photos</div>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => {
+                                                setSelectedEvent(null);
+                                                navigate(`/organizer/edit-event/${selectedEvent._id}`);
+                                            }}
+                                        >
+                                            Edit Event
                                         </Button>
                                     </div>
 

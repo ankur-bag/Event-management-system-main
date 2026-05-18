@@ -3,8 +3,10 @@ import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, Github } from "lucide-react";
 import { Button } from "../ui/button.jsx";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function GradientHero() {
+  const { user } = useAuth();
   return (
     <div className="bg-background relative w-full overflow-hidden">
       {/* Background gradient */}
@@ -66,7 +68,7 @@ export default function GradientHero() {
               className="group relative overflow-hidden rounded-full px-6 shadow-lg shadow-primary/30 ring-2 ring-primary/20 ring-offset-2 ring-offset-background bg-primary text-primary-foreground transition-all duration-300 hover:shadow-primary/40 hover:ring-primary/40"
               asChild
             >
-              <Link to="/signup">
+              <Link to={user ? (user.role === 'admin' ? '/admin/dashboard' : user.role === 'organizer' ? '/organizer/dashboard' : '/customer/dashboard') : '/signup'}>
                 <span className="from-primary/80 via-primary to-primary/90 absolute inset-0 z-0 bg-gradient-to-r opacity-40 transition-opacity duration-300 group-hover:opacity-70"></span>
                 <span className="relative z-10 flex items-center">
                   Get Started

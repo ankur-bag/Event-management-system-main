@@ -1,10 +1,5 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-} from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./index.css";
 import Footer from "./components/mvpblocks/footer-standard";
 import Header2 from "./components/mvpblocks/header-2";
@@ -16,35 +11,15 @@ import About from "./pages/About";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
-import DashboardLayout from "./components/DashboardLayout";
 import CustomerDashboard from "./pages/dashboard/CustomerDashboard";
 import OrganizerDashboard from "./pages/dashboard/OrganizerDashboard";
 import CreateEvent from "./pages/dashboard/CreateEvent";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import ThankYou from "./pages/ThankYou";
+import EventDetail from "./pages/EventDetail";
 import { useAuth } from "./context/AuthContext";
 import ScrollToTop from "./components/ui/ScrollToTop";
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import './index.css'
-import Footer from "./components/mvpblocks/footer-standard";
-import Header2 from "./components/mvpblocks/header-2"
-import Home from './pages/Home';
-import Features from './pages/Features';
-import Pricing from './pages/Pricing';
-import Contact from './pages/Contact';
-import About from './pages/About';
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
-import Profile from './pages/Profile';
-import DashboardLayout from './components/DashboardLayout';
-import CustomerDashboard from './pages/dashboard/CustomerDashboard';
-import OrganizerDashboard from './pages/dashboard/OrganizerDashboard';
-import CreateEvent from './pages/dashboard/CreateEvent';
-import AdminDashboard from './pages/dashboard/AdminDashboard';
-import ThankYou from './pages/ThankYou';
-import { useAuth } from './context/AuthContext';
-import ScrollToTop from './components/ScrollToTop';
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -87,6 +62,10 @@ const App = () => {
             <Route path="/login" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/thank-you" element={<ThankYou />} />
+            
+            {/* Event Details View */}
+            <Route path="/events/:id" element={<EventDetail />} />
+
             <Route
               path="/profile"
               element={
@@ -96,7 +75,7 @@ const App = () => {
               }
             />
 
-            {/* Dashboard Routes - Flattened, No Sidebar Layout */}
+            {/* Dashboard Routes */}
             <Route
               path="/customer/dashboard"
               element={
@@ -122,6 +101,14 @@ const App = () => {
               }
             />
             <Route
+              path="/organizer/edit-event/:id"
+              element={
+                <ProtectedRoute allowedRoles={["organizer"]}>
+                  <CreateEvent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
@@ -139,12 +126,10 @@ const App = () => {
               }
             />
 
-            {/* Fallback to Home or 404 */}
+            {/* Fallback to Home */}
             <Route path="*" element={<Home />} />
           </Routes>
-          <>
-            <ScrollToTop />
-          </>
+          <ScrollToTop />
         </main>
         <Footer />
       </div>

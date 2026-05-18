@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/auth.js';
 import { authorizeRoles } from '../middleware/roles.js';
 import { upload } from '../utils/upload.js';
-import { createEvent, updateEvent, deleteEvent, listEvents, getEvent, sendEventReminders } from '../controllers/eventController.js';
+import { createEvent, updateEvent, deleteEvent, listEvents, getEvent, sendEventReminders, uploadGalleryImages, deleteGalleryImage } from '../controllers/eventController.js';
 
 const router = Router();
 
@@ -12,6 +12,9 @@ router.post('/', authenticate, authorizeRoles('organizer', 'admin'), upload.sing
 router.post('/:id/remind', authenticate, authorizeRoles('organizer'), sendEventReminders);
 router.put('/:id', authenticate, authorizeRoles('organizer', 'admin'), upload.single('poster'), updateEvent);
 router.delete('/:id', authenticate, authorizeRoles('organizer', 'admin'), deleteEvent);
+
+router.post('/:id/gallery', authenticate, authorizeRoles('organizer'), upload.array('gallery', 6), uploadGalleryImages);
+router.delete('/:id/gallery/:imageIndex', authenticate, authorizeRoles('organizer'), deleteGalleryImage);
 
 export default router;
 

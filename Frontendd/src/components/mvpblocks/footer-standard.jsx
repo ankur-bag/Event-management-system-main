@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { LegalModal } from "../ui/legal-modal";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { legalContent } from "../../data/legalContent";
 import {
   Github,
@@ -213,16 +215,17 @@ export default function FooterStandard() {
                 <ul className="space-y-2">
                   {data().navigation[section].map((item) => (
                     <li key={item.name}>
-                     <Link
+                      <Link
                         to={item.href}
                         onClick={(e) => {
                           if (section === 'legal') {
                             handleLegalClick(e, item.href);
                           }
                         }}
-                        className="text-xs text-slate-600 hover:text-rose-600 transition-colors cursor-pointer">
+                        className="text-xs text-slate-600 hover:text-rose-600 transition-colors cursor-pointer"
+                      >
                         {item.name}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -235,60 +238,25 @@ export default function FooterStandard() {
         {/* Bottom */}
         <div className="animate-rotate-3d via-primary h-px w-full bg-gradient-to-r from-transparent to-transparent" />
 
-        <div className="text-muted-foreground container m-auto flex flex-col items-center justify-between gap-4 p-4 text-xs md:flex-row md:px-0 md:text-sm">
-
+        <div className="text-muted-foreground container m-auto flex flex-col items-center justify-between gap-4 py-8 text-xs md:flex-row md:px-0 md:text-sm">
           <p>
-            &copy; {currentYear} Eventone | All rights reserved
+            &copy; {currentYear} Event.One | All rights reserved
           </p>
 
           <div className="flex items-center gap-4">
-
             {data().bottomLinks.map(({ href, label }) => (
-
-        {/* Divider */}
-        <div className="h-px bg-slate-200 my-10"></div>
-
-        {/* Bottom Row - Social & Links */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12">
-          {/* Social Links - Left */}
-          <div className="lg:col-span-4 flex items-center gap-3">
-            {data().socialLinks.map(({ icon: IconComponent, label, href }) => (
               <a
                 key={label}
                 href={href}
-                className="p-1.5 text-slate-600 hover:text-rose-600 transition-colors"
-                aria-label={label}>
-                <IconComponent className="h-4 w-4" />
+                onClick={(e) => handleLegalClick(e, href)}
+                className="text-xs text-slate-600 hover:text-rose-600 transition-colors cursor-pointer"
+              >
+                {label}
               </a>
-
             ))}
-
-          </div>
-
-          {/* Privacy & Terms Links - Right */}
-          <div className="lg:col-span-8 flex justify-end gap-4">
-            <a
-              href="/privacy"
-              onClick={(e) => handleLegalClick(e, '/privacy')}
-              className="text-xs text-slate-600 hover:text-rose-600 transition-colors cursor-pointer">
-              Privacy
-            </a>
-            <a
-              href="/terms"
-              onClick={(e) => handleLegalClick(e, '/terms')}
-              className="text-xs text-slate-600 hover:text-rose-600 transition-colors cursor-pointer">
-              Terms
-            </a>
           </div>
         </div>
 
-        {/* Centered Copyright */}
-        <div className="flex justify-center">
-          <p className="text-xs text-slate-600 flex items-center gap-1">
-            © {currentYear} Event.One
-            <Heart className="h-3 w-3 text-rose-500 fill-rose-500" />
-          </p>
-        </div>
       </div>
 
       {/* Legal Modal */}
