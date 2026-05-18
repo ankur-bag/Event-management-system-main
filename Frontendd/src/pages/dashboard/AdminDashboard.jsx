@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Calendar, MapPin, Building, Shield, Users, Activity, TrendingUp, Download, Trash2, MessageSquare, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -18,18 +18,7 @@ export default function AdminDashboard() {
     const [rejectTarget, setRejectTarget] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
 
-    useEffect(() => {
-        if (activeTab === 'Pending Reviews') {
-            fetchPendingEvents();
-        } else if (activeTab === 'All Events & Management') {
-            fetchAllEvents();
-        } else if (activeTab === 'User Management') {
-            fetchUsers();
-        }
-        fetchStats();
-    }, [activeTab]);
-
-    const fetchPendingEvents = async () => {
+    const fetchPendingEvents = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_BASE_URL}/api/admin/events/pending`, {
@@ -44,9 +33,9 @@ export default function AdminDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const fetchAllEvents = async () => {
+    const fetchAllEvents = useCallback(async () => {
         try {
             // Fetch all events for management
             const res = await fetch(`${API_BASE_URL}/api/events`); // Helper endpoint that returns all without filter if no params
@@ -57,9 +46,9 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error("Failed to fetch all events", error);
         }
-    };
+    }, []);
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
@@ -72,9 +61,9 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error("Failed to fetch users", error);
         }
-    };
+    }, []);
 
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/stats/dashboard`);
             if (res.ok) {
@@ -84,7 +73,18 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error("Failed to fetch stats", error);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (activeTab === 'Pending Reviews') {
+            fetchPendingEvents();
+        } else if (activeTab === 'All Events & Management') {
+            fetchAllEvents();
+        } else if (activeTab === 'User Management') {
+            fetchUsers();
+        }
+        fetchStats();
+    }, [activeTab, fetchPendingEvents, fetchAllEvents, fetchUsers, fetchStats]);
 
     const handleAction = async (eventId, action, reason) => {
         try {

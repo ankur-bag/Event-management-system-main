@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, MapPin, Ticket, X, Download } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -20,15 +20,7 @@ export default function CustomerDashboard() {
 
     const [availableEvents, setAvailableEvents] = useState([]);
 
-    useEffect(() => {
-        if (activeTab === 'Browse Events') {
-            fetchAvailableEvents();
-        } else {
-            fetchRegistrations();
-        }
-    }, [activeTab]);
-
-    const fetchAvailableEvents = async () => {
+    const fetchAvailableEvents = useCallback(async () => {
         try {
             setLoading(true);
             const res = await fetch(`${API_BASE_URL}/api/events?status=approved`);
@@ -43,9 +35,9 @@ export default function CustomerDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const fetchRegistrations = async () => {
+    const fetchRegistrations = useCallback(async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
@@ -61,7 +53,15 @@ export default function CustomerDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (activeTab === 'Browse Events') {
+            fetchAvailableEvents();
+        } else {
+            fetchRegistrations();
+        }
+    }, [activeTab, fetchAvailableEvents, fetchRegistrations]);
 
     const handleRegister = async (eventId) => {
         try {

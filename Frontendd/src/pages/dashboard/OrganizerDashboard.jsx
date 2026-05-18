@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, MapPin, Users, Plus, Upload, Tag, Search, TrendingUp, IndianRupee, Clock, CheckCircle, XCircle, AlertCircle, Download, Trash2, Pencil, Eye } from 'lucide-react';
@@ -41,14 +41,23 @@ export default function OrganizerDashboard() {
         byCategory: {}
     });
 
-    useEffect(() => {
-        document.title = 'Organizer Dashboard | Event.One';
-        if (user) {
-            fetchMyEvents();
-        }
-    }, [user]);
+    const calculateStats = useCallback((events) => {
+        const newStats = {
+            approved: events.filter(e => e.status === 'approved').length,
+            pending: events.filter(e => e.status === 'pending').length,
+            rejected: events.filter(e => e.status === 'rejected').length,
+            totalEvents: events.length,
+            totalRegistrations: events.reduce((acc, curr) => acc + (curr.registrations || 0), 0),
+            byCategory: {}
+        };
+        events.forEach(e => {
+            const cat = e.category || 'Uncategorized';
+            newStats.byCategory[cat] = (newStats.byCategory[cat] || 0) + 1;
+        });
+        setStats(newStats);
+    }, []);
 
-    const fetchMyEvents = async () => {
+    const fetchMyEvents = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
 
@@ -71,23 +80,14 @@ export default function OrganizerDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.id, calculateStats]);
 
-    const calculateStats = (events) => {
-        const newStats = {
-            approved: events.filter(e => e.status === 'approved').length,
-            pending: events.filter(e => e.status === 'pending').length,
-            rejected: events.filter(e => e.status === 'rejected').length,
-            totalEvents: events.length,
-            totalRegistrations: events.reduce((acc, curr) => acc + (curr.registrations || 0), 0),
-            byCategory: {}
-        };
-        events.forEach(e => {
-            const cat = e.category || 'Uncategorized';
-            newStats.byCategory[cat] = (newStats.byCategory[cat] || 0) + 1;
-        });
-        setStats(newStats);
-    };
+    useEffect(() => {
+        document.title = 'Organizer Dashboard | Event.One';
+        if (user) {
+            fetchMyEvents();
+        }
+    }, [user, fetchMyEvents]);
 
     const handleDownloadCSV = (eventId) => {
         const token = localStorage.getItem('token');
