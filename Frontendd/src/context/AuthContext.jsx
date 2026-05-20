@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext, useRef } from 'react';
 import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext(null);
@@ -6,8 +6,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
-    const fetchUser = useCallback(async (token) => {
+    const fetchUser = async (token) => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
                 headers: {
@@ -28,7 +27,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
     useEffect(() => {
         // Check if user is logged in
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }) => {
             // No token, not loading anymore
             setLoading(false);
         }
-    }, [fetchUser]);
+    }, []);
 
     const login = (token, userData) => {
         localStorage.setItem('token', token);

@@ -29,12 +29,24 @@ const uploadStreamToCloudinary = (fileBuffer, folderName = 'eventone/posters') =
 
 export const createEvent = async (req, res) => {
   try {
-    let posterUrl = '';
+    let posterUrl;
+
     if (req.file) {
       const result = await uploadStreamToCloudinary(req.file.buffer, 'eventone/posters');
       posterUrl = result?.secure_url || '';
     }
-    const event = await Event.create({ ...req.body, organizer: req.user.id, posterUrl });
+
+    // Parse tags string into array
+    if (req.body.tags) {
+      req.body.tags = JSON.parse(req.body.tags);
+    }
+
+    const event = await Event.create({
+      ...req.body,
+      organizer: req.user.id,
+      posterUrl,
+    });
+
     res.status(201).json({ event });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -43,117 +55,300 @@ export const createEvent = async (req, res) => {
 
 export const updateEvent = async (req, res) => {
   try {
+
+    // Parse tags string into array
+    if (req.body.tags) {
+      req.body.tags = JSON.parse(req.body.tags);
+    }
+
+    // Parse gallery string into array if sent as JSON
+    if (req.body.gallery) {
+      try {
+        req.body.gallery = JSON.parse(req.body.gallery);
+      } catch (e) {
+        // Already an array or invalid JSON, ignore
+      }
+    }
+
     const update = { ...req.body };
 
     if (req.file) {
       const result = await uploadStreamToCloudinary(req.file.buffer, 'eventone/posters');
+
       if (result?.secure_url) {
         update.posterUrl = result.secure_url;
       }
     }
 
-    // Fetch the old event with the organizer constraint to capture the previous poster URL
-    const oldEvent = await Event.findOne(
-      { _id: req.params.id, organizer: req.user.id }
-    ).lean();
-    if (!oldEvent) return res.status(404).json({ message: 'Event not found' });
+    // Fetch the old event
+    const oldEvent = await Event.findOne({
+      _id: req.params.id,
+      organizer: req.user.id,
+    }).lean();
+
+    if (!oldEvent) {
+      return res.status(404).json({
+        message: 'Event not found',
+      });
+    }
+
+    if (oldEvent.status === 'rejected') {
+      update.status = 'pending';
+      update.rejectionReason = '';
+    }
 
     const event = await Event.findOneAndUpdate(
-      { _id: req.params.id, organizer: req.user.id },
+      {
+        _id: req.params.id,
+        organizer: req.user.id,
+      },
       update,
       { new: true }
     );
 
-    // Delete the old poster from Cloudinary only after a successful authorized update
     if (update.posterUrl && oldEvent.posterUrl) {
       await deleteFromCloudinary(oldEvent.posterUrl);
     }
 
     res.json({ event });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
 
 export const deleteEvent = async (req, res) => {
   try {
-    const event = await Event.findOneAndDelete({ _id: req.params.id, organizer: req.user.id });
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    const event = await Event.findOneAndDelete({
+      _id: req.params.id,
+      organizer: req.user.id,
+    });
 
-    // Clean up the poster from Cloudinary
+    if (!event) {
+      return res.status(404).json({
+        message: 'Event not found',
+      });
+    }
+
     if (event.posterUrl) {
       await deleteFromCloudinary(event.posterUrl);
     }
 
-    res.json({ message: 'Deleted' });
+    res.json({
+      message: 'Deleted',
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
-
 export const listEvents = async (req, res) => {
   try {
-    const { q, category, status, organizer } = req.query;
+    const {
+      q,
+      category,
+      status,
+      organizer,
+      tags,
+      page = 1,
+      limit = 12,
+    } = req.query;
+
     const filter = {};
-    if (q) filter.title = { $regex: q, $options: 'i' };
+
+    if (status) {
+      if (status !== 'all') {
+        filter.status = status;
+      }
+    } else {
+      filter.status = 'approved';
+    }
+
+    // Search title + description
+    if (q) {
+      filter.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+      ];
+    }
+
     if (category) filter.category = category;
-    if (status) filter.status = status;
     if (organizer) filter.organizer = organizer;
-    const events = await Event.find(filter).populate('organizer', 'name').sort({ date: 1 });
-    res.json({ events });
+
+    if (tags) {
+      const tagArray = tags
+        .split(',')
+        .map((tag) => tag.toLowerCase().trim())
+        .filter(Boolean);
+
+      filter.tags = { $all: tagArray };
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+
+    const limitNum = Math.min(
+      50,
+      Math.max(1, parseInt(limit, 10) || 12)
+    );
+
+    const skip = (pageNum - 1) * limitNum;
+
+    const [events, total] = await Promise.all([
+      Event.find(filter)
+        .populate('organizer', 'name')
+        .sort({ date: 1 })
+        .skip(skip)
+        .limit(limitNum),
+
+      Event.countDocuments(filter),
+    ]);
+
+    res.json({
+      events,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
+export const getPopularTags = async (req, res) => {
+  try {
+    const tags = await Event.aggregate([
+      {
+        $match: {
+          status: 'approved',
+        },
+      },
+      {
+        $unwind: '$tags',
+      },
+      {
+        $group: {
+          _id: '$tags',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          count: -1,
+        },
+      },
+      {
+        $limit: 20,
+      },
+    ]);
 
-import { sendTicketEmail } from '../utils/email.js';
-import { generateQRCodeDataUrl } from '../utils/qrcode.js';
+    res.json({
+      tags,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
 
 export const getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate('organizer', 'name');
-    if (!event) return res.status(404).json({ message: 'Not found' });
-    const count = await Registration.countDocuments({ event: event._id, status: { $ne: 'cancelled' } });
-    res.json({ event, registrations: count });
+    const event = await Event.findById(req.params.id)
+      .populate('organizer', 'name');
+
+    if (!event) {
+      return res.status(404).json({
+        message: 'Not found',
+      });
+    }
+
+    const count = await Registration.countDocuments({
+      event: event._id,
+      status: { $ne: 'cancelled' },
+    });
+
+    res.json({
+      event,
+      registrations: count,
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
 
 export const sendEventReminders = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
 
-    // Only allow the event organizer
-    if (event.organizer.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized: Only the event organizer can send reminders' });
+    if (!event) {
+      return res.status(404).json({
+        message: 'Event not found',
+      });
     }
 
-    const registrations = await Registration.find({ event: event._id, status: 'registered' }).populate('user');
+    // Only organizer can send reminders
+    if (event.organizer.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: 'Not authorized: Only the event organizer can send reminders',
+      });
+    }
+
+    const registrations = await Registration.find({
+      event: event._id,
+      status: 'registered',
+    }).populate('user');
 
     let sentCount = 0;
+
     for (const reg of registrations) {
       if (reg.user && reg.user.email) {
+
         let qrCode = reg.qrCodeDataUrl;
+
         if (!qrCode) {
-          qrCode = await generateQRCodeDataUrl(JSON.stringify({
-            registrationId: reg._id,
-            eventId: event._id,
-            userId: reg.user._id
-          }));
-          // Save it back if it helps, or just use it
+          qrCode = await generateQRCodeDataUrl(
+            JSON.stringify({
+              registrationId: reg._id,
+              eventId: event._id,
+              userId: reg.user._id,
+            })
+          );
+
           reg.qrCodeDataUrl = qrCode;
           await reg.save();
         }
-        await sendTicketEmail(reg.user.email, event, reg._id, qrCode);
+
+        await sendTicketEmail(
+          reg.user.email,
+          event,
+          reg._id,
+          qrCode
+        );
+
         sentCount++;
       }
     }
 
-    res.json({ message: `Sent reminders to ${sentCount} participants` });
+    res.json({
+      message: `Sent reminders to ${sentCount} participants`,
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
 
@@ -181,7 +376,7 @@ export const uploadGalleryImages = async (req, res) => {
     }
 
     // Validate size and mimetype
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'image/jpg'];
     const maxFileSize = 5 * 1024 * 1024; // 5MB
 
     for (const file of req.files) {
