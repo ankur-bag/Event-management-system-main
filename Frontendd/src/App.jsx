@@ -23,6 +23,7 @@ import CustomerDashboard from "./pages/dashboard/CustomerDashboard";
 import OrganizerDashboard from "./pages/dashboard/OrganizerDashboard";
 import CreateEvent from "./pages/dashboard/CreateEvent";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import QRScanner from "./pages/dashboard/QRScanner";
 import ThankYou from "./pages/ThankYou";
 import EventDetail from "./pages/EventDetail";
 
@@ -128,7 +129,7 @@ const App = () => {
             <Route
               path="/customer/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["customer"]}>
+                <ProtectedRoute allowedRoles={['attendee']}>
                   <CustomerDashboard />
                 </ProtectedRoute>
               }
@@ -144,7 +145,15 @@ const App = () => {
               }
             />
 
-            {/* Create Event */}
+            <Route
+              path="/organizer/scan/:eventId"
+              element={
+                <ProtectedRoute allowedRoles={['organizer']}>
+                  <QRScanner />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/organizer/create-event"
               element={

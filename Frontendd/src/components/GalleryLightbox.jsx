@@ -5,12 +5,20 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 export default function GalleryLightbox({ images = [], initialIndex = 0, onClose }) {
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
+    const handleNext = () => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    };
+
+    const handlePrev = () => {
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    };
+
     useEffect(() => {
         // Enforce indices in bounds on load
         if (initialIndex >= 0 && initialIndex < images.length) {
             setCurrentIndex(initialIndex);
         }
-    }, [initialIndex, images]);
+    }, [initialIndex, images.length]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -31,15 +39,7 @@ export default function GalleryLightbox({ images = [], initialIndex = 0, onClose
             window.removeEventListener('keydown', handleKeyDown);
             document.body.style.overflow = 'unset';
         };
-    }, [currentIndex, images]);
-
-    const handleNext = () => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    };
-
-    const handlePrev = () => {
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-    };
+    }, [currentIndex, images.length, onClose, handleNext, handlePrev]);
 
     if (!images || images.length === 0) return null;
 

@@ -14,11 +14,14 @@ import reviewRoutes from './routes/reviewRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
 
+
 import { env } from './config/env.js';
 import { connectDB } from './config/db.js';
 
-import { initSocket } from './services/socket.js';
+
 import app from './app.js';
+
+import { initSocket } from './services/socket.js';
 
 const server = http.createServer(app);
 

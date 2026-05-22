@@ -5,6 +5,7 @@ import codingninja from "../../assets/logos/codingninja.png";
 import d4 from "../../assets/logos/d4.jpg";
 import encrypted from "../../assets/logos/encrypted.jpg";
 import gdg from "../../assets/logos/gdg.jpg";
+
 export default function SparklesLogo() {
   return (
     <div className="w-full overflow-hidden bg-background">
@@ -51,7 +52,7 @@ export default function SparklesLogo() {
         </div>
       </div>
 
-      <div className="relative -mt-32 h-96 w-screen overflow-hidden [mask-image:radial-gradient(circle,white,transparent)] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_bottom,#e60a64,transparent_70%)] before:opacity-40 after:absolute after:top-1/2 after:-left-1/2 after:aspect-[1/0.7] after:w-[200%] after:rounded-[100%] after:border-t after:border-[#c5769066] after:bg-background">
+      <div className="relative z-10 -mt-40 h-[32rem] md:h-[40rem] w-full overflow-hidden [mask-image:radial-gradient(circle,white,transparent)] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_bottom,#e60a64,transparent_70%)] before:opacity-40 after:absolute after:top-1/2 after:-left-1/2 after:aspect-[1/0.7] after:w-[200%] after:rounded-[100%] after:border-t after:border-[#c5769066] after:bg-white">
         <SparklesCore
           id="tsparticles"
           background="transparent"

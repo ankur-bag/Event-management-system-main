@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Calendar, MapPin, Building, Shield, Users, Activity, TrendingUp, Download, Trash2, MessageSquare, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -10,7 +10,6 @@ import { API_BASE_URL } from '../../config';
 export default function AdminDashboard() {
     const { user } = useAuth();
     const [pendingEvents, setPendingEvents] = useState([]);
-    const [stats, setStats] = useState({ totalUsers: 0, totalEvents: 0, pendingCount: 0 });
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('Pending Reviews');
     const [allEvents, setAllEvents] = useState([]);

@@ -19,10 +19,6 @@ export default function EventDetail() {
     const [registering, setRegistering] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(null);
 
-    useEffect(() => {
-        fetchEventDetails();
-    }, [id]);
-
     const fetchEventDetails = async () => {
         try {
             setLoading(true);
@@ -55,6 +51,12 @@ export default function EventDetail() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (id) {
+            fetchEventDetails();
+        }
+    }, [id, user]);
 
     const handleRegister = async () => {
         if (!user) {
