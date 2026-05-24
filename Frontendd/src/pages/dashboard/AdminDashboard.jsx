@@ -14,6 +14,11 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('Pending Reviews');
     const [allEvents, setAllEvents] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
+    const [stats, setStats] = useState({
+        pendingCount: 0,
+        totalEvents: 0,
+        totalUsers: 0,
+    });
 
     const [rejectingEvent, setRejectingEvent] = useState(null);
     const [rejectReason, setRejectReason] = useState('');

@@ -10,6 +10,7 @@ import { Textarea } from '../../components/ui/textarea';
 import toast from "react-hot-toast";
 
 import { API_BASE_URL } from '../../config';
+import CountdownTimer from '../../components/CountdownTimer';
 // Manual Check-In: helper debounce delay
 const SEARCH_DEBOUNCE_MS = 150;
 
@@ -312,6 +313,7 @@ const handleCreateSubmit = async (e) => {
 
     const upcomingEvents = events.filter(e => new Date(e.date) >= new Date());
     const pastEvents = events.filter(e => new Date(e.date) < new Date());
+    const myEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
         <div className="min-h-screen bg-background text-foreground pt-24 px-4 sm:px-6 lg:px-8 font-sans selection:bg-purple-500/30 relative overflow-hidden">
@@ -375,7 +377,7 @@ const handleCreateSubmit = async (e) => {
                     {/* Content Header based on Tab */}
                     <div className="flex justify-between items-center mb-8">
                         <h2 className="text-xl font-semibold text-foreground">
-                            {activeTab === 'My Events' && 'Your Upcoming Events'}
+                            {activeTab === 'My Events' && 'Your Events'}
                             {activeTab === 'Past Events' && 'Past Events History'}
                             {activeTab === 'Create New Event' && 'Create a New Event'}
                             {activeTab === 'Analytics' && 'Performance Overview'}
@@ -402,7 +404,7 @@ const handleCreateSubmit = async (e) => {
                         {/* MY EVENTS TAB */}
                         {activeTab === 'My Events' && (
                             <div className="space-y-6">
-                                {upcomingEvents.length === 0 ? (
+                                {myEvents.length === 0 ? (
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -421,7 +423,7 @@ const handleCreateSubmit = async (e) => {
                                     </motion.div>
                                 ) : (
                                     <div className="grid grid-cols-1 gap-6">
-                                        {upcomingEvents.map((event, idx) => (
+                                        {myEvents.map((event, idx) => (
                                             <motion.div
                                                 key={event._id}
                                                 layout

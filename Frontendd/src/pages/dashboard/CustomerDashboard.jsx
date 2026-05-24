@@ -5,7 +5,7 @@ import { io } from 'socket.io-client';
 import { Button } from '../../components/ui/button';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../../config';
 import ConfirmationModal from '../../components/ui/confirmation-modal';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -48,7 +48,6 @@ export default function CustomerDashboard() {
   const highlightTimeoutsRef = useRef({});
 
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const debouncedSearch = useDebounce(searchQuery, 400);
 
   // Initialize search and category from URL params on mount

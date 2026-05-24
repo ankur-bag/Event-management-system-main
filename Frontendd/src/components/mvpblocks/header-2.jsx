@@ -43,11 +43,8 @@ export default function Header2() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-<<<<<<< HEAD
   const { theme, toggleTheme } = useTheme();
-=======
   const location = useLocation();
->>>>>>> 39390f956c2ae4748336c2fcd265793ffa3cdbe1
   const isDark = theme === "dark";
 
   const getDashboardLink = () => {

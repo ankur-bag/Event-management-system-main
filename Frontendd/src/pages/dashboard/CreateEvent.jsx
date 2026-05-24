@@ -167,7 +167,38 @@ export default function CreateEvent() {
         }
     };
 
-    const removeGalleryItem = (index) => {
+    const removeGalleryItem = async (index) => {
+        const item = galleryItems[index];
+
+        // If this is an existing image and we're editing, attempt to delete immediately on the server
+        if (item && item.type === 'existing' && isEditMode) {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE_URL}/api/events/${id}/gallery/${index}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    toast.error(err.message || 'Failed to delete image');
+                    return;
+                }
+
+                const data = await res.json();
+                // Update local galleryItems to reflect server response
+                setGalleryItems(data.event.gallery.map((url, idx) => ({ id: `existing-${idx}-${Math.random()}`, type: 'existing', url })));
+                return;
+            } catch (error) {
+                console.error('Failed to delete gallery image:', error);
+                toast.error('Failed to delete image');
+                return;
+            }
+        }
+
+        // Otherwise simply remove locally (newly added images)
         setGalleryItems(galleryItems.filter((_, i) => i !== index));
     };
 
