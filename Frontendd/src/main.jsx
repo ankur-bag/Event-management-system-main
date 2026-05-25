@@ -11,7 +11,9 @@ createRoot(document.getElementById("root")).render(
     <HelmetProvider>
       <CustomThemeProvider>
         <AuthProvider>
-          <App />
+          <SocketProvider>
+            <App />
+          </SocketProvider>
         </AuthProvider>
       </CustomThemeProvider>
     </HelmetProvider>

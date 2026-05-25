@@ -65,6 +65,20 @@ const App = () => {
       document.documentElement.classList.remove("dark");
     } 
   },[darkMode]);
+
+  useEffect(() => {
+    const handleOnline = () => toast.success("You are back online!");
+    const handleOffline = () => toast.error("You are offline. Viewing cached data.");
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <ScrollToTop />

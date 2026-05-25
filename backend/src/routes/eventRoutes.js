@@ -11,6 +11,17 @@ router.get('/tags/popular', getPopularTags);
 router.get('/:id', getEvent);
 router.post('/', authenticate, authorizeRoles('organizer', 'admin'), upload.single('poster'), createEvent);
 router.post('/:id/remind', authenticate, authorizeRoles('organizer'), sendEventReminders);
+router.post(
+  "/:id/co-organizers",
+  authenticate,
+  addCoOrganizer
+);
+
+router.delete(
+  "/:id/co-organizers/:userId",
+  authenticate,
+  removeCoOrganizer
+);
 router.put('/:id', authenticate, authorizeRoles('organizer', 'admin'), upload.single('poster'), updateEvent);
 router.delete('/:id', authenticate, authorizeRoles('organizer', 'admin'), deleteEvent);
 

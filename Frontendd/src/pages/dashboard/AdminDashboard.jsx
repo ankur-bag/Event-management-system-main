@@ -297,17 +297,17 @@ export default function AdminDashboard() {
                         </h2>
                         {activeTab === 'Pending Reviews' && (
                             <span className="px-3 py-1 bg-yellow-500/10 text-yellow-500 text-xs font-medium rounded-full border border-yellow-500/20">
-                                {stats.pendingCount || pendingEvents.length} Pending
+                                {pendingEvents.length} Pending
                             </span>
                         )}
                         {activeTab === 'All Events & Management' && (
                             <span className="px-3 py-1 bg-purple-500/10 text-purple-500 text-xs font-medium rounded-full border border-purple-500/20">
-                                {stats.totalEvents || allEvents.length} Total
+                                {allEvents.length} Total
                             </span>
                         )}
                         {activeTab === 'User Management' && (
                             <span className="px-3 py-1 bg-blue-500/10 text-blue-500 text-xs font-medium rounded-full border border-blue-500/20">
-                                {stats.totalUsers || allUsers.length} Users
+                                {allUsers.length} Users
                             </span>
                         )}
                     </div>

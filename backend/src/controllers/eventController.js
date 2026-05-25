@@ -148,15 +148,7 @@ export const deleteEvent = async (req, res) => {
 };
 export const listEvents = async (req, res) => {
   try {
-    const {
-      q,
-      category,
-      status,
-      organizer,
-      tags,
-      page = 1,
-      limit = 12,
-    } = req.query;
+    const { q, category, status, organizer } = req.query;
 
     const filter = {};
 
@@ -168,12 +160,11 @@ export const listEvents = async (req, res) => {
       filter.status = 'approved';
     }
 
-    // Search title + description
     if (q) {
-      filter.$or = [
-        { title: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } },
-      ];
+      filter.title = {
+        $regex: q,
+        $options: 'i',
+      };
     }
 
     if (category) filter.category = category;
@@ -185,37 +176,37 @@ export const listEvents = async (req, res) => {
         .map((tag) => tag.toLowerCase().trim())
         .filter(Boolean);
 
-      filter.tags = { $all: tagArray };
+    if (status) {
+      filter.status = status;
     }
 
-    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    if (organizer) {
+      filter.organizer = organizer;
+    }
 
-    const limitNum = Math.min(
-      50,
-      Math.max(1, parseInt(limit, 10) || 12)
+    const events = await Event.find(filter)
+      .populate('organizer', 'name')
+      .sort({ date: 1 });
+
+    const eventsWithCount = await Promise.all(
+      events.map(async (event) => {
+        const registeredCount =
+          await Registration.countDocuments({
+            event: event._id,
+            status: 'registered',
+          });
+
+        return {
+          ...event.toObject(),
+          registeredCount,
+        };
+      })
     );
 
-    const skip = (pageNum - 1) * limitNum;
-
-    const [events, total] = await Promise.all([
-      Event.find(filter)
-        .populate('organizer', 'name')
-        .sort({ date: 1 })
-        .skip(skip)
-        .limit(limitNum),
-
-      Event.countDocuments(filter),
-    ]);
-
     res.json({
-      events,
-      pagination: {
-        total,
-        page: pageNum,
-        limit: limitNum,
-        totalPages: Math.ceil(total / limitNum),
-      },
+      events: eventsWithCount,
     });
+
   } catch (err) {
     res.status(500).json({
       message: err.message,
@@ -299,11 +290,19 @@ export const sendEventReminders = async (req, res) => {
     }
 
     // Only organizer can send reminders
-    if (event.organizer.toString() !== req.user.id) {
-      return res.status(403).json({
-        message: 'Not authorized: Only the event organizer can send reminders',
-      });
-    }
+    const isOwner =
+  event.organizer.toString() === req.user.id;
+
+const isCoOrganizer =
+  event.coOrganizers?.some(
+    (id) => id.toString() === req.user.id
+  );
+
+if (!isOwner && !isCoOrganizer) {
+  return res.status(403).json({
+    message: "Not authorized",
+  });
+} 
 
     const registrations = await Registration.find({
       event: event._id,

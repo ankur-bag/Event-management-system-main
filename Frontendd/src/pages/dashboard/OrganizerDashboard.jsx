@@ -82,6 +82,20 @@ export default function OrganizerDashboard() {
                 const myEvents = data.events || [];
                 setEvents(myEvents);
                 calculateStats(myEvents);
+                // Fetch co-organized events
+                try {
+                    const coRes = await fetch(`${API_BASE_URL}/api/events`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (coRes.ok) {
+                        const coData = await coRes.json();
+                        const coEvents = (coData.events || []).filter(
+                            e => e.organizer?._id !== user?.id && e.organizer !== user?.id &&
+                            (e.coOrganizers || []).some(co => co._id === user?.id || co === user?.id)
+                        ).map(e => ({ ...e, _isCoOrganized: true }));
+                        if (coEvents.length > 0) setEvents(prev => [...prev, ...coEvents]);
+                    }
+                } catch (_) {}
             }
         } catch (error) {
             console.error("Failed to fetch events", error);
@@ -466,6 +480,9 @@ const handleCreateSubmit = async (e) => {
                                                             <div className="flex justify-between items-start">
                                                                 <h3 className="text-lg font-semibold text-foreground group-hover:text-purple-500 transition-colors">
                                                                     {event.title}
+                                                                    {event._isCoOrganized && (
+                                                                        <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium align-middle">Co-organizing</span>
+                                                                    )}
                                                                 </h3>
                                                                 <span className="flex items-center text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-full">
                                                                     <Tag className="w-3 h-3 mr-1" />

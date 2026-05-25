@@ -7,7 +7,9 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import http from 'http';
 
-// routes (only if needed here, otherwise keep in app.js)
+import { initSocket } from './services/socket.js';
+ 
+
 import authRoutes from './routes/authRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import registrationRoutes from './routes/registrationRoutes.js';
